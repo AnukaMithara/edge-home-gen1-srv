@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  datafab-source-management:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.datafab
+    ports:
+      - "1018:8000"
+    restart: always
+    container_name: datafab-source-management
+    image: datafab-source-management:1.0
