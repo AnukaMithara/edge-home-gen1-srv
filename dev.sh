@@ -1,4 +1,4 @@
-SERVICE_NAME=source-management
+SERVICE_NAME=edge-home
 VERSION=1.0.0
 TAG=${SERVICE_NAME}:${VERSION}
 PORT=1024
