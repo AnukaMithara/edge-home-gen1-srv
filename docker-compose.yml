@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - .env.datafab
+      - .env
     ports:
       - "1018:8000"
     restart: always
