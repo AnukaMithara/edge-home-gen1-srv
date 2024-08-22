@@ -1,4 +1,5 @@
 from sqlalchemy import Column, BigInteger, String, Boolean
+from sqlalchemy.orm import relationship
 
 from app.config.database_config import Base
 
@@ -14,3 +15,5 @@ class User(Base):
     role = Column(String(50), default='user')
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+
+    user_face_data = relationship("UserFaceData", back_populates="user", lazy='noload')

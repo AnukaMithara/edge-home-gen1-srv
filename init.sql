@@ -12,6 +12,14 @@ CREATE TABLE user (
     is_verified BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE user_face_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    face_data BLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE user_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
