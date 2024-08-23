@@ -11,5 +11,3 @@ class UserFaceData(Base):
     user_id = Column(BigInteger, ForeignKey(User.id, ondelete='CASCADE', onupdate='CASCADE'))
     face_data = Column(BLOB, nullable=False)
     created_at = Column(DateTime, nullable=True, server_default=func.now())
-
-    user = relationship("User", back_populates="user_face_data", lazy="joined", innerjoin=True)

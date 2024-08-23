@@ -56,9 +56,11 @@ async def get_all_users(db: db_dependency, response: Response):
     response.status_code = result.status_code
     return result
 
-
-
-
+@router.get("/verify/{email}")
+async def verify_user(db: db_dependency, response: Response, email: str):
+    result = user_service.verify_user(email=email, db=db)
+    response.status_code = result.status_code
+    return result
 
 
 

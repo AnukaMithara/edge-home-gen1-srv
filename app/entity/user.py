@@ -15,5 +15,3 @@ class User(Base):
     role = Column(String(50), default='user')
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
-
-    user_face_data = relationship("UserFaceData", back_populates="user", lazy='noload')

@@ -5,12 +5,14 @@ from fastapi import UploadFile
 from typing import List
 from PIL import Image
 
+from app.entity.user_logs import UserLogs
 from app.model.user_model import UserModel
 from app.model.generic_response import GenericResponse
 from app.config.logging_config import get_logger
+from app.repository.user_logs_repository import UserLogsRepository
 from app.repository.user_repository import UserRepository
 from app.service.image_embedding_service import ImageEmbeddingService
-from app.util.util import encrypt_password
+from app.util.util import encrypt_password, decrypt_password
 
 logger = get_logger(class_name=__name__)
 
@@ -52,12 +54,27 @@ class UserService:
 
             saved_user = UserRepository.save(user_entity, db)
 
+            user_logs = UserLogs(
+                user_email=saved_user.email,
+                log=f"User {saved_user.email} created"
+            )
+
+            UserLogsRepository.save(user_logs, db)
+
             face_data_results = ImageEmbeddingService.store_embedding_in_db(user_id=saved_user.id, img_list=image_paths,
                                                                             db=db)
 
-            results = saved_user.__dict__
-            results.pop('password')
-            results['face_data'] = face_data_results
+            results = {
+                "id": saved_user.id,
+                "email": saved_user.email,
+                "first_name": saved_user.first_name,
+                "last_name": saved_user.last_name,
+                "phone_number": saved_user.phone_number,
+                "role": saved_user.role,
+                "is_active": saved_user.is_active,
+                "is_verified": saved_user.is_verified,
+                "face_data": face_data_results
+            }
 
             logger.info("Create User Process End")
             return GenericResponse.success(message="Create User Success", results=results)
@@ -82,7 +99,7 @@ class UserService:
                 logger.info("Login User Process End with error")
                 return GenericResponse.failed(message="Unauthorized user", results=[], status_code=401)
 
-            if user.password != encrypt_password(login_model.password):
+            if decrypt_password(user.password) != login_model.password:
                 logger.info("Login User Process End")
                 return GenericResponse.failed(message="Invalid password", results=[])
 
@@ -108,7 +125,6 @@ class UserService:
 
             user_dict = user.__dict__
             user_dict.pop('password')
-            user_dict.pop('user_face_data')
 
             logger.info("Get User Process End")
             return GenericResponse.success(message="User found", results=user_dict)
@@ -127,7 +143,6 @@ class UserService:
             for user in users:
                 user_dict = user.__dict__
                 user_dict.pop('password')
-                user_dict.pop('user_face_data')
                 users_list.append(user_dict)
 
             logger.info("Get All Users Process End")
@@ -136,3 +151,30 @@ class UserService:
             logger.error(f"Get All Users Error: {str(ex)}")
             logger.info("Get All Users End With Error")
             return GenericResponse.failed(message=f"Get All Users Failed, Error: {str(ex)}", results=[])
+
+    @classmethod
+    def verify_user(cls, email, db):
+        try:
+            logger.info("Verify User Process Started")
+
+            user = UserRepository.get_user_by_email(email=email, db=db)
+            if not user:
+                logger.info("Verify User Process End with error")
+                return GenericResponse.failed(message="User not found", results=[], status_code=404)
+
+            user.is_verified = True
+            UserRepository.save(user, db)
+
+            user_logs = UserLogs(
+                user_email=user.email,
+                log=f"User {user.email} verified"
+            )
+
+            UserLogsRepository.save(user_logs, db)
+
+            logger.info("Verify User Process End")
+            return GenericResponse.success(message="User verified", results=[])
+        except Exception as ex:
+            logger.error(f"Verify User Error: {str(ex)}")
+            logger.info("Verify User End With Error")
+            return GenericResponse.failed(message=f"Verify User Failed, Error: {str(ex)}", results=[])

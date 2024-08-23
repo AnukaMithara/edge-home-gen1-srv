@@ -35,8 +35,7 @@ CREATE TABLE device (
     place VARCHAR(255) NOT NULL,
     state BOOLEAN DEFAULT FALSE,
     device_type VARCHAR(100),
-    last_maintenance_date DATE,
-    metadata JSON
+    device_metadata JSON
 );
 
 CREATE TABLE device_logs (
