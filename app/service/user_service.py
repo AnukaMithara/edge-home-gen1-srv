@@ -90,6 +90,56 @@ class UserService:
                     logger.error(f"Error deleting temp file {image_path}: {e}")
 
     @classmethod
+    def add_face_data(cls, email, image_list: List[UploadFile], db):
+        image_paths = []
+        try:
+            logger.info("Add Face Data Process Started")
+
+            user = UserRepository.get_user_by_email(email=email, db=db)
+            if not user:
+                logger.info("Add Face Data Process End with error")
+                return GenericResponse.failed(message="User not found", results=[], status_code=404)
+
+            for image in image_list:
+                try:
+                    img = Image.open(image.file)
+                    img.verify()
+                except Exception as e:
+                    return GenericResponse.failed(message=f"Invalid image file: {image.filename}. Error: {str(e)}",
+                                                  results=[])
+
+                image_path = f"temp/{image.filename}"
+                image.file.seek(0)
+                if not os.path.exists("temp"):
+                    os.makedirs("temp")
+                with open(image_path, "wb") as buffer:
+                    buffer.write(image.file.read())
+                image_paths.append(image_path)
+
+            face_data_results = ImageEmbeddingService.store_embedding_in_db(user_id=user.id, img_list=image_paths,
+                                                                            db=db)
+
+            user_logs = UserLogs(
+                user_email=user.email,
+                log=f"Face data added for user {user.email}"
+            )
+
+            UserLogsRepository.save(user_logs, db)
+
+            logger.info("Add Face Data Process End")
+            return GenericResponse.success(message="Face data added", results=face_data_results)
+        except Exception as ex:
+            logger.error(f"Add Face Data Error: {str(ex)}")
+            logger.info("Add Face Data End With Error")
+            return GenericResponse.failed(message=f"Add Face Data Failed, Error: {str(ex)}", results=[])
+        finally:
+            for image_path in image_paths:
+                try:
+                    os.remove(image_path)
+                except OSError as e:
+                    logger.error(f"Error deleting temp file {image_path}: {e}")
+
+    @classmethod
     def login_user(cls, login_model, db):
         try:
             logger.info("Login User Process Started")

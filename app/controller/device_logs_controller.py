@@ -20,7 +20,7 @@ async def get_all_device_logs(db: db_dependency, response: Response):
 
 
 @router.get("/get/{device_id}")
-async def get_device_logs_by_device_id(db: db_dependency, response: Response, device_id: int):
+async def get_device_logs_by_device_id(db: db_dependency, response: Response, device_id: str):
     result = device_log_service.get_device_logs_by_device_id(device_id=device_id, db=db)
     response.status_code = result.status_code
     return result

@@ -12,3 +12,5 @@ MYSQL_PORT = os.environ.get('MYSQL_PORT', '3306')
 MYSQL_DB_NAME = os.environ.get('MYSQL_DB_NAME', 'edge_home_db')
 
 ENCRYPT_KEY = os.environ.get('ENCRYPT_KEY').encode()
+
+FACE_RECOGNITION_THRESHOLD = float(os.environ.get('FACE_RECOGNITION_THRESHOLD', 9.0))

@@ -24,3 +24,10 @@ def get_database():
 
 
 db_dependency = Annotated[Session, Depends(get_database)]
+
+
+class DatabaseConfig:
+
+    @classmethod
+    def get_database_session(cls):
+        return SessionLocal()

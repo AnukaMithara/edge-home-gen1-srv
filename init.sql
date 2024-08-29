@@ -31,6 +31,7 @@ CREATE TABLE user_logs (
 
 CREATE TABLE device (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id VARCHAR(255) UNIQUE NOT NULL,
     device_name VARCHAR(255) NOT NULL,
     place VARCHAR(255) NOT NULL,
     state BOOLEAN DEFAULT FALSE,
@@ -38,20 +39,45 @@ CREATE TABLE device (
     device_metadata JSON
 );
 
+
+CREATE TABLE control_device_permission (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    master_device_id VARCHAR(255),
+    slave_device_id VARCHAR(255),
+    FOREIGN KEY (master_device_id) REFERENCES device(device_id) ON DELETE CASCADE,
+    FOREIGN KEY (slave_device_id) REFERENCES device(device_id) ON DELETE CASCADE
+);
+
+
 CREATE TABLE device_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    device_id INT,
+    device_id VARCHAR(255),
     log TEXT NOT NULL,
     action VARCHAR(255),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (device_id) REFERENCES device(id) ON DELETE CASCADE
+    FOREIGN KEY (device_id) REFERENCES device(device_id) ON DELETE CASCADE
 );
 
 CREATE TABLE permissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
-    device_id INT,
+    device_id VARCHAR(255),
     access_level ENUM('read', 'write', 'admin') DEFAULT 'read',
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-    FOREIGN KEY (device_id) REFERENCES device(id) ON DELETE CASCADE
+    FOREIGN KEY (device_id) REFERENCES device(device_id) ON DELETE CASCADE
 );
+
+CREATE TABLE device_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_type VARCHAR(100) UNIQUE NOT NULL,
+    display_name VARCHAR(100)
+);
+
+-- Inserting default device types
+INSERT INTO device_types (device_type, display_name) VALUES ('LIGHT', 'Light');
+INSERT INTO device_types (device_type, display_name) VALUES ('FAN', 'Fan');
+INSERT INTO device_types (device_type, display_name) VALUES ('AC', 'Air Conditioner');
+INSERT INTO device_types (device_type, display_name) VALUES ('TV', 'Television');
+INSERT INTO device_types (device_type, display_name) VALUES ('DOOR_LOCK', 'Door Lock');
+INSERT INTO device_types (device_type, display_name) VALUES ('SWITCH', 'Switch');
+INSERT INTO device_types (device_type, display_name) VALUES ('SAFETY', 'Safety Device');

@@ -1,6 +1,6 @@
 from app.entity.user_face_data import UserFaceData
 from app.exceptions.exception import DbOperationException
-
+from app.entity.user import User
 
 class UserFaceDataRepository:
 
@@ -18,5 +18,12 @@ class UserFaceDataRepository:
     def get_all(cls, db):
         try:
             return db.query(UserFaceData).all()
+        except Exception as ex:
+            raise DbOperationException(str(ex), ex)
+
+    @classmethod
+    def get_verified_users(cls, db):
+        try:
+            return db.query(UserFaceData).join(User).filter(User.is_verified == True).all()
         except Exception as ex:
             raise DbOperationException(str(ex), ex)

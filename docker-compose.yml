@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-  datafab-source-management:
+  edge-home:
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,5 +9,5 @@ services:
     ports:
       - "1018:8000"
     restart: always
-    container_name: datafab-source-management
-    image: datafab-source-management:1.0
+    container_name: edge-home
+    image: edge-home:1.0

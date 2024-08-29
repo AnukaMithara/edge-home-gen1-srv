@@ -36,6 +36,13 @@ async def create_user(db: db_dependency, response: Response,
     response.status_code = result.status_code
     return result
 
+@router.post("/update")
+async def add_face_data(db: db_dependency, response: Response,
+                email: str = Form(...),
+                image_list: List[UploadFile] = File(...)):
+    result = user_service.add_face_data(email=email, image_list=image_list, db=db)
+    response.status_code = result.status_code
+    return result
 
 @router.post("/login")
 async def login_user(db: db_dependency, response: Response, login_model: LoginModel):

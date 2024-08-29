@@ -20,3 +20,10 @@ class UserRepository:
             return db.query(User).filter(User.email == email).first()
         except Exception as ex:
             raise DbOperationException(str(ex), ex)
+
+    @classmethod
+    def get_user_by_id(cls, user_id, db):
+        try:
+            return db.query(User).filter(User.id == user_id).first()
+        except Exception as ex:
+            raise DbOperationException(str(ex), ex)
